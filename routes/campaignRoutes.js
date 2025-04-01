@@ -10,4 +10,10 @@ router.post('/', campaignController.create);
 // Rota para listar todas as campanhas
 router.get('/', campaignController.getAll);
 
+// Rota para atualizar uma campanha
+router.put('/:id', campaignController.update);
+
+// Rota para deletar uma campanha
+router.delete('/:id', campaignController.delete);
+
 module.exports = router;

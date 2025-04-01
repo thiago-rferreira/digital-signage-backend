@@ -25,6 +25,31 @@ const campaignController = {
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
+  },
+
+  update: async (req, res) => {
+    const { id } = req.params;
+    const { name, description } = req.body;
+
+    if (!name || !description) {
+      return res.status(400).json({ error: 'Name and description are required' });
+    }
+    try {
+      const updatedCampaign = await Campaign.update(id, name, description);
+      res.status(200).json(updatedCampaign);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  delete: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const result = await Campaign.delete(id);
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   }
 };
 
