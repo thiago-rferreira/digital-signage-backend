@@ -7,15 +7,15 @@ const Media = {
       db.run(`
         INSERT INTO media (campaign_id, file_path, file_type, duration) 
         VALUES (?, ?, ?, ?)
-      `, [campaign_id, file_path, file_type, duration], function(err) {
+      `, [campaign_id, file_path, file_type, duration], function (err) {
         if (err) {
           reject(err);  // Caso ocorra erro, rejeita a Promise
         } else {
           resolve({
-            id: this.lastID, 
-            campaign_id, 
-            file_path, 
-            file_type, 
+            id: this.lastID,
+            campaign_id,
+            file_path,
+            file_type,
             duration
           });  // Resolve com os dados da mídia recém-criada
         }
@@ -36,7 +36,60 @@ const Media = {
         }
       });
     });
+  },
+
+  // Função para atualizar um registro de mídia
+  update: (id, file_path, file_type, duration) => {
+    return new Promise((resolve, reject) => {
+      db.run(`
+        UPDATE media 
+        SET file_path = ?, file_type = ?, duration = ? 
+        WHERE id = ?
+      `, [file_path, file_type, duration, id], function (err) {
+        if (err) {
+          reject(err);  // Caso ocorra erro, rejeita a Promise
+        } else {
+          resolve({
+            id,
+            file_path,
+            file_type,
+            duration
+          });  // Resolve com os dados atualizados da mídia
+        }
+      });
+    });
+  },
+
+  // Função para deletar um registro de mídia
+  delete: (id) => {
+    return new Promise((resolve, reject) => {
+      db.run(`
+        DELETE FROM media WHERE id = ?
+      `, [id], function (err) {
+        if (err) {
+          reject(err);  // Caso ocorra erro, rejeita a Promise
+        } else {
+          resolve({ message: 'Media deleted successfully', id });  // Resolve com a mensagem de sucesso
+        }
+      });
+    });
+  },
+
+  // Função para obter uma mídia pelo ID
+  getById: (id) => {
+    return new Promise((resolve, reject) => {
+      db.get(`
+      SELECT * FROM media WHERE id = ?
+    `, [id], (err, row) => {
+        if (err) {
+          reject(err);  // Caso ocorra erro, rejeita a Promise
+        } else {
+          resolve(row);  // Resolve com os dados da mídia encontrada
+        }
+      });
+    });
   }
+
 };
 
 module.exports = Media;

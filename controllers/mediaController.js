@@ -49,6 +49,70 @@ const mediaController = {
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
+  },
+
+  update: async (req, res) => {
+    const { id } = req.params;
+    const { file_type, duration } = req.body;
+    const file = req.file; // O arquivo foi processado pelo Multer e está disponível aqui
+
+    if (!file_type || !file) {
+      return res.status(400).json({ error: 'File_type and file are required' });
+    }
+
+    try {
+      const media = await Media.getById(id); // Verificar se a mídia existe
+      if (!media) {
+        return res.status(404).json({ error: 'Media not found' });
+      }
+
+      // Gerar o novo caminho do arquivo
+      const fileExtension = path.extname(file.originalname);
+      const filePath = path.join('uploads', Date.now() + fileExtension);
+
+      // Mover o arquivo para o novo caminho
+      const fs = require('fs');
+      fs.rename(file.path, filePath, (err) => {
+        if (err) {
+          return res.status(500).json({ error: 'Erro ao mover o arquivo para o diretório final' });
+        }
+
+        // Atualizar o registro de mídia no banco de dados
+        Media.update(id, filePath, file_type, duration)
+          .then((updatedMedia) => res.status(200).json(updatedMedia)) // Retorna a mídia atualizada
+          .catch((err) => res.status(500).json({ error: err.message }));
+      });
+
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  delete: async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      const media = await Media.getById(id); // Verificar se a mídia existe
+      if (!media) {
+        return res.status(404).json({ error: 'Media not found' });
+      }
+
+      // Deletar o arquivo do sistema de arquivos
+      const fs = require('fs');
+      fs.unlink(media.file_path, (err) => {
+        if (err) {
+          return res.status(500).json({ error: 'Erro ao excluir o arquivo do sistema' });
+        }
+
+        // Deletar o registro de mídia no banco de dados
+        Media.delete(id)
+          .then((result) => res.status(200).json(result)) // Retorna a mensagem de sucesso
+          .catch((err) => res.status(500).json({ error: err.message }));
+      });
+
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   }
 };
 
