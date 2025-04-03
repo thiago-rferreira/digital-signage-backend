@@ -88,6 +88,27 @@ const Media = {
         }
       });
     });
+  },
+
+  // NOVO MÉTODO: Atualizar apenas a duração
+  updateDuration: (id, duration) => {
+    return new Promise((resolve, reject) => {
+      db.run(`
+        UPDATE media 
+        SET duration = ? 
+        WHERE id = ?
+      `, [duration, id], function (err) {
+        if (err) {
+          reject(err);
+        } else {
+          // Retorna todos os dados da mídia atualizada
+          db.get(`SELECT * FROM media WHERE id = ?`, [id], (err, row) => {
+            if (err) reject(err);
+            else resolve(row);
+          });
+        }
+      });
+    });
   }
 
 };

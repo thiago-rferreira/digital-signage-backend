@@ -12,10 +12,10 @@ router.post('/', upload.single('file'), mediaController.create);
 // Rota para obter as mídias de uma campanha
 router.get('/:campaign_id', mediaController.getByCampaignId);
 
-// Rota para atualizar uma mídia
-router.put('/:id', upload.single('file'), mediaController.update);
-
 // Rota para deletar uma mídia
 router.delete('/:id', mediaController.delete);
+
+// Rota para atualizar uma mídia (apenas duração)
+router.put('/:id', mediaController.update);
 
 module.exports = router;

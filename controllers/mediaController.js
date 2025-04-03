@@ -53,35 +53,21 @@ const mediaController = {
 
   update: async (req, res) => {
     const { id } = req.params;
-    const { file_type, duration } = req.body;
-    const file = req.file; // O arquivo foi processado pelo Multer e está disponível aqui
+    const { duration } = req.body;
 
-    if (!file_type || !file) {
-      return res.status(400).json({ error: 'File_type and file are required' });
+    if (!duration) {
+      return res.status(400).json({ error: 'Duration is required' });
     }
 
     try {
-      const media = await Media.getById(id); // Verificar se a mídia existe
+      const media = await Media.getById(id);
       if (!media) {
         return res.status(404).json({ error: 'Media not found' });
       }
 
-      // Gerar o novo caminho do arquivo
-      const fileExtension = path.extname(file.originalname);
-      const filePath = path.join('uploads', Date.now() + fileExtension);
-
-      // Mover o arquivo para o novo caminho
-      const fs = require('fs');
-      fs.rename(file.path, filePath, (err) => {
-        if (err) {
-          return res.status(500).json({ error: 'Erro ao mover o arquivo para o diretório final' });
-        }
-
-        // Atualizar o registro de mídia no banco de dados
-        Media.update(id, filePath, file_type, duration)
-          .then((updatedMedia) => res.status(200).json(updatedMedia)) // Retorna a mídia atualizada
-          .catch((err) => res.status(500).json({ error: err.message }));
-      });
+      // Atualizar apenas a duração no banco de dados
+      const updatedMedia = await Media.updateDuration(id, duration);
+      res.status(200).json(updatedMedia);
 
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -114,6 +100,7 @@ const mediaController = {
       res.status(500).json({ error: err.message });
     }
   }
+
 };
 
 module.exports = mediaController;
