@@ -82,23 +82,26 @@ const mediaController = {
       if (!media) {
         return res.status(404).json({ error: 'Media not found' });
       }
-
-      // Deletar o arquivo do sistema de arquivos
+    
+      // Deletar o registro de mídia no banco de dados
+      const result = await Media.delete(id);
+    
+      // Espera 1 minuto para deletar o arquivo do sistema de arquivos
       const fs = require('fs');
-      fs.unlink(media.file_path, (err) => {
-        if (err) {
-          return res.status(500).json({ error: 'Erro ao excluir o arquivo do sistema' });
-        }
-
-        // Deletar o registro de mídia no banco de dados
-        Media.delete(id)
-          .then((result) => res.status(200).json(result)) // Retorna a mensagem de sucesso
-          .catch((err) => res.status(500).json({ error: err.message }));
-      });
-
+      setTimeout(() => {
+        fs.unlink(media.file_path, (err) => {
+          if (err) {
+            console.error('Erro ao excluir o arquivo do sistema:', err.message);
+          } else {
+            console.log(`Arquivo ${media.file_path} excluído com sucesso.`);
+          }
+        });
+      }, 30000); // 30 segundos
+    
+      return res.status(200).json(result);
     } catch (err) {
       res.status(500).json({ error: err.message });
-    }
+    }    
   }
 
 };
