@@ -1,47 +1,60 @@
-// controllers/widgetsController.js
+// models/widgetsModel.js
+const db = require('../db');
 
-const Widget = require('../models/widgetsModel');
-
-const widgetsController = {
-  // Criar widget
-  create: async (req, res) => {
-    const { campaign_id, name, source, duration, widget_order, start_date, end_date } = req.body;
-
-    if (!campaign_id || !name || !source) {
-      return res.status(400).json({ error: 'Campos obrigatórios: campaign_id, name, source' });
-    }
-
-    try {
-      const newWidget = await Widget.create(campaign_id, name, source, duration, widget_order, start_date, end_date);
-      res.status(201).json(newWidget);
-    } catch (err) {
-      res.status(500).json({ error: 'Erro ao criar widget', details: err.message });
-    }
+const Widget = {
+  create: (campaign_id, name, source, duration, widget_order = null, start_date = null, end_date = null) => {
+    return new Promise((resolve, reject) => {
+      db.run(`
+        INSERT INTO widgets (campaign_id, name, source, duration, widget_order, start_date, end_date)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `, [campaign_id, name, source, duration, widget_order, start_date, end_date], function(err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({
+            id: this.lastID,
+            campaign_id,
+            name,
+            source,
+            duration,
+            widget_order,
+            start_date,
+            end_date
+          });
+        }
+      });
+    });
   },
 
-  // Listar todos os widgets de uma campanha
-  getByCampaignId: async (req, res) => {
-    const { campaign_id } = req.params;
-
-    try {
-      const widgets = await Widget.getByCampaignId(campaign_id);
-      res.json(widgets);
-    } catch (err) {
-      res.status(500).json({ error: 'Erro ao buscar widgets', details: err.message });
-    }
+  getByCampaignId: (campaign_id) => {
+    return new Promise((resolve, reject) => {
+      db.all(`
+        SELECT * FROM widgets
+        WHERE campaign_id = ?
+        ORDER BY widget_order ASC
+      `, [campaign_id], (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
   },
 
-  // Deletar um widget
-  delete: async (req, res) => {
-    const { id } = req.params;
-
-    try {
-      const result = await Widget.delete(id);
-      res.json(result);
-    } catch (err) {
-      res.status(500).json({ error: 'Erro ao deletar widget', details: err.message });
-    }
+  delete: (id) => {
+    return new Promise((resolve, reject) => {
+      db.run(`
+        DELETE FROM widgets WHERE id = ?
+      `, [id], function(err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({ message: 'Widget deletado com sucesso', id });
+        }
+      });
+    });
   }
 };
 
-module.exports = widgetsController;
+module.exports = Widget;

@@ -13,7 +13,8 @@ const widgetsController = {
       start_date,
       end_date
     } = req.body;
-
+    
+    
     if (!campaign_id || !name || !source) {
       return res.status(400).json({ error: 'Campaign ID, name e source são obrigatórios' });
     }

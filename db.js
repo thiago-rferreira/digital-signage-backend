@@ -50,7 +50,7 @@ db.run(`
     campaign_id INTEGER NOT NULL,
     name TEXT NOT NULL,
     source TEXT NOT NULL, -- pode ser uma URL ou um caminho local
-    duration INTEGER DEFAULT 30, -- tempo em segundos na tela
+    duration INTEGER DEFAULT 10, -- tempo em segundos na tela
     widget_order INTEGER DEFAULT 0,
     start_date TEXT,
     end_date TEXT,
