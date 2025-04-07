@@ -4,14 +4,20 @@ const Campaign = require('../models/campaignModel');
 
 const campaignController = {
   create: async (req, res) => {
-    const { name, description } = req.body;
-    console.log('Received data:', name, description);
-   
+    const { name, description, type } = req.body;
+    console.log('Received data:', name, description, type);
+
     if (!name || !description) {
       return res.status(400).json({ error: 'Name and description are required' });
     }
+
+    const validTypes = ['fullscreen', 'portrait', 'split'];
+    if (type && !validTypes.includes(type)) {
+      return res.status(400).json({ error: 'Invalid campaign type' });
+    }
+
     try {
-      const campaign = await Campaign.create(name, description);
+      const campaign = await Campaign.create(name, description, type);
       res.status(201).json(campaign);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -29,13 +35,19 @@ const campaignController = {
 
   update: async (req, res) => {
     const { id } = req.params;
-    const { name, description } = req.body;
+    const { name, description, type } = req.body;
 
     if (!name || !description) {
       return res.status(400).json({ error: 'Name and description are required' });
     }
+
+    const validTypes = ['fullscreen', 'portrait', 'split'];
+    if (type && !validTypes.includes(type)) {
+      return res.status(400).json({ error: 'Invalid campaign type' });
+    }
+
     try {
-      const updatedCampaign = await Campaign.update(id, name, description);
+      const updatedCampaign = await Campaign.update(id, name, description, type);
       res.status(200).json(updatedCampaign);
     } catch (err) {
       res.status(500).json({ error: err.message });
