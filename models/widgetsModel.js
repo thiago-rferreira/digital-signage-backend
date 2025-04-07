@@ -1,5 +1,7 @@
 // models/widgetsModel.js
 const db = require('../db');
+const { get } = require('../routes/widgetsRoutes');
+const { getById, update } = require('./campaignModel');
 
 const Widget = {
   create: (campaign_id, name, source, duration, widget_order = null, start_date = null, end_date = null) => {
@@ -51,6 +53,43 @@ const Widget = {
           reject(err);
         } else {
           resolve({ message: 'Widget deletado com sucesso', id });
+        }
+      });
+    });
+  },
+
+  getById: (id) => {
+    return new Promise((resolve, reject) => {
+      db.get(`
+        SELECT * FROM widgets WHERE id = ?
+      `, [id], (err, row) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(row);
+        }
+      });
+    });
+  },
+
+  update: (id, duration, widget_order, start_date, end_date) => {
+
+    return new Promise((resolve, reject) => {
+      db.run(`
+        UPDATE widgets
+        SET duration = ?, widget_order = ?, start_date = ?, end_date = ?
+        WHERE id = ?
+      `, [duration, widget_order, start_date, end_date, id], function(err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({
+            id,
+            duration,
+            widget_order,
+            start_date,
+            end_date
+          });
         }
       });
     });

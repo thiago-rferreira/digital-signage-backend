@@ -11,4 +11,7 @@ router.get('/:campaign_id', widgetsController.getByCampaignId);
 // Deletar widget
 router.delete('/:id', widgetsController.delete);
 
+// Atualizar widget
+router.put('/:id', widgetsController.update);
+
 module.exports = router;

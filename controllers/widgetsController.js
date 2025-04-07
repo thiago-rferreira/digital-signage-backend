@@ -67,7 +67,34 @@ const widgetsController = {
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
+  },
+
+  // Atualizar um widget.
+
+  update: async (req, res) => {
+    const { id } = req.params;
+    const { duration, widget_order, start_date, end_date } = req.body;
+
+    try {
+      const widget = await Widget.getById(id);
+      if (!widget) {
+        return res.status(404).json({ error: 'Widget não encontrado' });
+      }
+
+      const updatedWidget = await Widget.update(
+        id,
+        duration,
+        widget_order,
+        start_date,
+        end_date
+      );
+
+      res.status(200).json(updatedWidget);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   }
+  
 };
 
 module.exports = widgetsController;
